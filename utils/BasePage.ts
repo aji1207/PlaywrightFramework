@@ -1,240 +1,286 @@
 import { Page, Locator, expect } from '@playwright/test';
 
 export class BasePage {
-
     protected page: Page;
 
     constructor(page: Page) {
         this.page = page;
     }
 
-    // Navigation
-    async navigate(url: string): Promise<void> {
+    // ===============================
+    // Navigation Methods
+    // ===============================
+
+    async navigateTo(url: string) {
         await this.page.goto(url);
     }
 
-    async getTitle(): Promise<string> {
+    async getPageTitle() {
         return await this.page.title();
     }
 
-    async getCurrentUrl(): Promise<string> {
+    async getCurrentUrl() {
         return this.page.url();
     }
 
+    async refreshPage() {
+        await this.page.reload();
+    }
+
+    async goBack() {
+        await this.page.goBack();
+    }
+
+    async goForward() {
+        await this.page.goForward();
+    }
+
+    // ===============================
     // Click Actions
-    async click(locator: string): Promise<void> {
-        await this.page.locator(locator).click();
+    // ===============================
+
+    async click(locator: Locator) {
+        await locator.click();
     }
 
-    async doubleClick(locator: string): Promise<void> {
-        await this.page.locator(locator).dblclick();
+    async doubleClick(locator: Locator) {
+        await locator.dblclick();
     }
 
-    async rightClick(locator: string): Promise<void> {
-        await this.page.locator(locator).click({
-            button: 'right'
-        });
+    async rightClick(locator: Locator) {
+        await locator.click({ button: 'right' });
     }
 
+    async forceClick(locator: Locator) {
+        await locator.click({ force: true });
+    }
+
+    // ===============================
     // Input Actions
-    async enterText(locator: string, text: string): Promise<void> {
-        await this.page.fill(locator, text);
+    // ===============================
+
+    async enterText(locator: Locator, text: string) {
+        await locator.fill(text);
     }
 
-    async appendText(locator: string, text: string): Promise<void> {
-        await this.page.locator(locator).pressSequentially(text);
+    async appendText(locator: Locator, text: string) {
+        await locator.pressSequentially(text);
     }
 
-    async clearText(locator: string): Promise<void> {
-        await this.page.locator(locator).clear();
+    async clearText(locator: Locator) {
+        await locator.clear();
     }
 
-    // Dropdown
-    async selectByValue(locator: string, value: string) {
-        await this.page.selectOption(locator, value);
+    async getInputValue(locator: Locator) {
+        return await locator.inputValue();
     }
 
-    async selectByLabel(locator: string, label: string) {
-        await this.page.selectOption(locator, {
-            label
-        });
+    // ===============================
+    // Dropdown Methods
+    // ===============================
+
+    async selectByText(locator: Locator, text: string) {
+        await locator.selectOption({ label: text });
     }
 
-    async selectByIndex(locator: string, index: number) {
-        await this.page.locator(locator)
-            .selectOption({ index });
+    async selectByValue(locator: Locator, value: string) {
+        await locator.selectOption(value);
     }
 
-    // Checkbox
-    async check(locator: string) {
-        await this.page.locator(locator).check();
+    async selectByIndex(locator: Locator, index: number) {
+        await locator.selectOption({ index });
     }
 
-    async uncheck(locator: string) {
-        await this.page.locator(locator).uncheck();
+    // ===============================
+    // Checkbox & Radio
+    // ===============================
+
+    async check(locator: Locator) {
+        await locator.check();
     }
 
-    // Radio Button
-    async selectRadio(locator: string) {
-        await this.page.locator(locator).check();
+    async uncheck(locator: Locator) {
+        await locator.uncheck();
     }
 
+    async isChecked(locator: Locator) {
+        return await locator.isChecked();
+    }
+
+    // ===============================
+    // Visibility Methods
+    // ===============================
+
+    async isVisible(locator: Locator) {
+        return await locator.isVisible();
+    }
+
+    async isEnabled(locator: Locator) {
+        return await locator.isEnabled();
+    }
+
+    async isDisabled(locator: Locator) {
+        return !(await locator.isEnabled());
+    }
+
+    async scrollIntoView(locator: Locator) {
+        await locator.scrollIntoViewIfNeeded();
+    }
+
+    // ===============================
+    // Wait Methods
+    // ===============================
+
+    async waitForElement(locator: Locator) {
+        await locator.waitFor({ state: 'visible' });
+    }
+
+    async waitForHidden(locator: Locator) {
+        await locator.waitFor({ state: 'hidden' });
+    }
+
+    async waitForTimeout(milliseconds: number) {
+        await this.page.waitForTimeout(milliseconds);
+    }
+
+    async waitForLoadState() {
+        await this.page.waitForLoadState('networkidle');
+    }
+
+    // ===============================
+    // Text Methods
+    // ===============================
+
+    async getText(locator: Locator) {
+        return await locator.textContent();
+    }
+
+    async getAllTexts(locator: Locator) {
+        return await locator.allTextContents();
+    }
+
+    async getCount(locator: Locator) {
+        return await locator.count();
+    }
+
+    // ===============================
+    // Assertions
+    // ===============================
+
+    async verifyText(locator: Locator, expectedText: string) {
+        await expect(locator).toHaveText(expectedText);
+    }
+
+    async verifyContainsText(locator: Locator, text: string) {
+        await expect(locator).toContainText(text);
+    }
+
+    async verifyVisible(locator: Locator) {
+        await expect(locator).toBeVisible();
+    }
+
+    async verifyHidden(locator: Locator) {
+        await expect(locator).toBeHidden();
+    }
+
+    async verifyUrl(expectedUrl: string) {
+        await expect(this.page).toHaveURL(expectedUrl);
+    }
+
+    async verifyTitle(expectedTitle: string) {
+        await expect(this.page).toHaveTitle(expectedTitle);
+    }
+
+    // ===============================
     // Mouse Actions
-    async hover(locator: string) {
-        await this.page.locator(locator).hover();
+    // ===============================
+
+    async hover(locator: Locator) {
+        await locator.hover();
     }
 
-    async dragAndDrop(source: string, target: string) {
-        await this.page.locator(source)
-            .dragTo(this.page.locator(target));
+    async dragAndDrop(source: Locator, target: Locator) {
+        await source.dragTo(target);
     }
 
-    // Keyboard
+    // ===============================
+    // Keyboard Actions
+    // ===============================
+
     async pressKey(key: string) {
         await this.page.keyboard.press(key);
     }
 
-    // Upload
-    async uploadFile(locator: string, filePath: string) {
-        await this.page.locator(locator)
-            .setInputFiles(filePath);
+    async pressEnter(locator: Locator) {
+        await locator.press('Enter');
     }
 
-    // Waits
-    async waitForElement(locator: string) {
-        await this.page.locator(locator)
-            .waitFor({ state: 'visible' });
+    async pressTab(locator: Locator) {
+        await locator.press('Tab');
     }
 
-    async waitForPageLoad() {
-        await this.page.waitForLoadState('networkidle');
-    }
-
-    async hardWait(seconds: number) {
-        await this.page.waitForTimeout(seconds * 1000);
-    }
-
-    // Scrolling
-    async scrollIntoView(locator: string) {
-        await this.page.locator(locator)
-            .scrollIntoViewIfNeeded();
-    }
-
-    async scrollToBottom() {
-        await this.page.evaluate(() => {
-            window.scrollTo(
-                0,
-                document.body.scrollHeight
-            );
-        });
-    }
-
-    async scrollToTop() {
-        await this.page.evaluate(() => {
-            window.scrollTo(0, 0);
-        });
-    }
-
-    // Get Text
-    async getText(locator: string): Promise<string> {
-        return await this.page.locator(locator)
-            .innerText();
-    }
-
-    async getAttribute(
-        locator: string,
-        attribute: string
-    ): Promise<string | null> {
-
-        return await this.page.locator(locator)
-            .getAttribute(attribute);
-    }
-
-    // Visibility
-    async isVisible(locator: string): Promise<boolean> {
-        return await this.page.locator(locator)
-            .isVisible();
-    }
-
-    async isEnabled(locator: string): Promise<boolean> {
-        return await this.page.locator(locator)
-            .isEnabled();
-    }
-
-    async isChecked(locator: string): Promise<boolean> {
-        return await this.page.locator(locator)
-            .isChecked();
-    }
-
-    // Screenshots
-    async takeScreenshot(name: string) {
-        await this.page.screenshot({
-            path: `reports/screenshots/${name}.png`,
-            fullPage: true
-        });
-    }
-
-    // Alerts
-    async acceptAlert() {
-        this.page.once('dialog', dialog =>
-            dialog.accept()
-        );
-    }
-
-    async dismissAlert() {
-        this.page.once('dialog', dialog =>
-            dialog.dismiss()
-        );
-    }
-
+    // ===============================
     // Frames
+    // ===============================
+
     async switchToFrame(frameName: string) {
         return this.page.frame(frameName);
     }
 
-    // Tabs
+    // ===============================
+    // Alerts
+    // ===============================
+
+    async acceptAlert() {
+        this.page.on('dialog', async dialog => {
+            await dialog.accept();
+        });
+    }
+
+    async dismissAlert() {
+        this.page.on('dialog', async dialog => {
+            await dialog.dismiss();
+        });
+    }
+
+    // ===============================
+    // Screenshots
+    // ===============================
+
+    async captureScreenshot(name: string) {
+        await this.page.screenshot({
+            path: `screenshots/${name}.png`,
+            fullPage: true
+        });
+    }
+
+    // ===============================
+    // File Upload
+    // ===============================
+
+    async uploadFile(locator: Locator, filePath: string) {
+        await locator.setInputFiles(filePath);
+    }
+
+    // ===============================
+    // Window Handling
+    // ===============================
+
     async switchToNewTab() {
-        const newPage = await this.page
-            .context()
-            .waitForEvent('page');
-
+        const newPage = await this.page.context().waitForEvent('page');
         await newPage.waitForLoadState();
-
         return newPage;
     }
 
-    // Assertions
-    async verifyText(
-        locator: string,
-        expectedText: string
-    ) {
-        await expect(
-            this.page.locator(locator)
-        ).toHaveText(expectedText);
+    // ===============================
+    // Table Methods
+    // ===============================
+
+    async getTableRowCount(locator: Locator) {
+        return await locator.locator('tr').count();
     }
 
-    async verifyContainsText(
-        locator: string,
-        expectedText: string
-    ) {
-        await expect(
-            this.page.locator(locator)
-        ).toContainText(expectedText);
-    }
-
-    async verifyVisible(locator: string) {
-        await expect(
-            this.page.locator(locator)
-        ).toBeVisible();
-    }
-
-    async verifyUrl(expectedUrl: string) {
-        await expect(this.page)
-            .toHaveURL(expectedUrl);
-    }
-
-    async verifyTitle(expectedTitle: string) {
-        await expect(this.page)
-            .toHaveTitle(expectedTitle);
+    async getTableColumnCount(locator: Locator) {
+        return await locator.locator('th').count();
     }
 }
