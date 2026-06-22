@@ -1,21 +1,31 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../utils/BasePage';
+import { LoginLocators } from '../locators/LoginLocators';
+import { Logger } from '../utils/Logger';
 
 export class LoginPage {
 
     constructor(private page: Page) {}
 
-    username = '#user-name';
-    password = '#password';
-    loginBtn = '#login-button';
+    async login(username: string, password: string) {
 
-    async navigate(url: string) {
-        await this.page.goto(url);
-    }
+        Logger.info('Entering Username');
 
-    async login(user: string, pass: string) {
-        await this.page.fill(this.username, user);
-        await this.page.fill(this.password, pass);
-        await this.page.click(this.loginBtn);
+        await this.page.fill(
+            LoginLocators.USERNAME_INPUT,
+            username
+        );
+
+        Logger.info('Entering Password');
+
+        await this.page.fill(
+            LoginLocators.PASSWORD_INPUT,
+            password
+        );
+
+        Logger.info('Clicking Login');
+
+        await this.page.click(
+            LoginLocators.LOGIN_BUTTON
+        );
     }
 }

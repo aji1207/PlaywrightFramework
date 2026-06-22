@@ -1,25 +1,18 @@
-import { Page } from '@playwright/test';
-import { BasePage } from '../utils/BasePage';
+import { Page, expect } from '@playwright/test';
 
-export class CartPage extends BasePage {
+export class CartPage {
 
-    
+    constructor(private page: Page) {}
 
-    async getProductPrice(productName: string) {
+    async verifyProduct(productName: string) {
 
-        return await this.page.locator(
-            `//div[text()='${productName}']/ancestor::div[@class='cart_item']//div[@class='inventory_item_price']`
-        ).textContent();
+        await expect(
+            this.page.locator('.inventory_item_name')
+        ).toContainText(productName);
     }
 
     async checkout() {
-        await this.page.locator('#checkout').click();
-    }
-    
-    async getProductName() {
 
-    return await this.page
-        .locator('.inventory_item_name')
-        .textContent();
-}
+        await this.page.click('#checkout');
+    }
 }

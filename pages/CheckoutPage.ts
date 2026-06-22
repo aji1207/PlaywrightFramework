@@ -1,27 +1,26 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../utils/BasePage';
 
-export class CheckoutPage extends BasePage {
+export class CheckoutPage {
 
-    
-    async enterDetails() {
+    constructor(private page: Page) {}
 
-        await this.page.fill('#first-name', 'Ahamed');
-        await this.page.fill('#last-name', 'Noorani');
-        await this.page.fill('#postal-code', '600001');
+    async enterDetails(
+        firstName: string,
+        lastName: string,
+        postalCode: string
+    ) {
+
+        await this.page.fill('#first-name', firstName);
+
+        await this.page.fill('#last-name', lastName);
+
+        await this.page.fill('#postal-code', postalCode);
 
         await this.page.click('#continue');
     }
 
-    async getTotalPrice() {
-        return await this.page.locator('.summary_total_label').textContent();
-    }
-
     async finishOrder() {
-        await this.page.click('#finish');
-    }
 
-    async getSuccessMessage() {
-        return await this.page.locator('.complete-header').textContent();
+        await this.page.click('#finish');
     }
 }

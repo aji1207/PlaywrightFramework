@@ -1,74 +1,48 @@
-import { test, expect } from '../fixtures/testFixtures';
-import { env } from '../utils/Environment';
-import { ScreenshotUtil } from '../utils/ScreenshotUtil';
+import { test } from '../fixtures/testFixtures';
 
+import users from '../test-data/users.json';
+import checkoutData from '../test-data/checkoutData.json';
+import products from '../test-data/products.json';
 
-test('Purchase product and validate price', async ({
+test('Complete Checkout Flow', async ({
+
     page,
     loginPage,
-    productsPage,
+    productPage,
     cartPage,
-    checkoutPage
+    checkoutPage,
+    orderConfirmationPage
+
 }) => {
 
-    const productName = 'Sauce Labs Backpack';
-
-    await loginPage.navigate(env.baseUrl);
+    await page.goto('https://www.saucedemo.com');
 
     await loginPage.login(
-        env.username,
-        env.password
+        users.standardUser.username,
+        users.standardUser.password
     );
-    await ScreenshotUtil.capture(
-    page,
-    'LoginSuccess'
-);
 
-    await productsPage.addProductToCart(productName);
-await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-    
-    await productsPage.openCart();
+    await productPage.addProductToCart(
+        products.productName
+    );
 
-    await ScreenshotUtil.capture(
-    page,
-    'CartPage'
-);
+    await productPage.verifyCartCount('1');
 
-    const cartProduct =
-    await cartPage.getProductName();
+    await productPage.openCart();
 
-expect(cartProduct).toBe(productName);
-    const price = await cartPage.getProductPrice(productName);
-
-
-
-    console.log('Product Price:', price);
-
-    // expect(price).not.toBeNull();
-    expect(price).toContain('$');
-    
-    
+    await cartPage.verifyProduct(
+        products.productName
+    );
 
     await cartPage.checkout();
 
-    await checkoutPage.enterDetails();
-
-    const totalPrice =
-        await checkoutPage.getTotalPrice();
-
-    console.log('Total Price:', totalPrice);
-
-    expect(totalPrice).toContain('$');
+    await checkoutPage.enterDetails(
+        checkoutData.firstName,
+        checkoutData.lastName,
+        checkoutData.postalCode
+    );
 
     await checkoutPage.finishOrder();
 
-    await ScreenshotUtil.capture(
-    page,
-    'OrderSuccess'
-);
-
-    const successMessage =
-        await checkoutPage.getSuccessMessage();
-
-    expect(successMessage).toContain('Thank you');
+    await orderConfirmationPage.verifyOrderSuccess();
 });

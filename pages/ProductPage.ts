@@ -1,19 +1,28 @@
-import { Page } from '@playwright/test';
-import { BasePage } from '../utils/BasePage';
+import { Page, expect } from '@playwright/test';
+import { Logger } from '../utils/Logger';
 
-export class ProductsPage extends   BasePage {
-    
+export class ProductPage {
+
+    constructor(private page: Page) {}
 
     async addProductToCart(productName: string) {
 
-        const product = this.page.locator(
-            `//div[text()='${productName}']/ancestor::div[@class='inventory_item']//button`
-        );
+        Logger.info(`Adding ${productName}`);
 
-        await product.click();
+        await this.page.locator(
+            `.inventory_item:has-text("${productName}") button`
+        ).click();
+    }
+
+    async verifyCartCount(count: string) {
+
+        await expect(
+            this.page.locator('.shopping_cart_badge')
+        ).toHaveText(count);
     }
 
     async openCart() {
-        await this.page.locator('.shopping_cart_link').click();
+
+        await this.page.click('.shopping_cart_link');
     }
 }

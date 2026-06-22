@@ -9,12 +9,21 @@ export default defineConfig({
         headless: false,
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        trace: 'retain-on-failure'
+        trace: 'on-first-retry'
     },
 
+
     reporter: [
-        ['html'],
-        ['allure-playwright']
-    ]
+
+    ['html', {
+
+        outputFolder:
+            `reports/html-report`
+
+    }],
+
+    ['allure-playwright']
+],
+  
  
 });
